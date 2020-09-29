@@ -19,11 +19,11 @@ mongoose
   })
   .catch(err => console.error(`Connection error ${err}`));
 
-// todo el middleware aca abajo y antes del listen
-app.use(express.json());
-app.use(cors());
-app.use(morgan('dev'));
-app.use('/api', require('./api/routes/note'));
+
+app.use(express.json());                       
+app.use(cors());                                
+app.use(morgan('dev'));                         
+app.use('/api', require('./api/routes/note'));  
 
 app.use((req, res, next) => {
   const err = new Error('Not found');
@@ -33,6 +33,7 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
+
   res.json({ error: err.message });
 });
 
