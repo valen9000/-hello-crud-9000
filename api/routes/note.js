@@ -1,4 +1,3 @@
-  
 const express = require('express');
 const router = express.Router();
 
@@ -7,22 +6,23 @@ const Note = require('../models/Note');
 // POST /notes
 router.post('/notes', (req, res, next) => {
   const note = new Note({
-      title: req.body.title,
-      text: req.body.text
-    });
-    note.save((err, note) => {
-      if (err) return next(err);
-      res.status(201).json(note);
-    });
+    title: req.body.title,
+    text: req.body.text
+  });
+  note.save((err, note) => {
+    if (err) return next(err);
+    res.status(201).json(note);
+  });
 });
+
 // GET /notes
 router.get('/notes', (req, res, next) => {
-  Note.find()                  
-    .select('_id title text')  
-    .sort('-updatedAt')        
+  Note.find()                  // todos los docs de notes
+    .select('_id title text')  // como SELECT en SQL
+    .sort('-updatedAt')        // ordena por modificacion descendente
     .exec((err, notes) => {
       if (err) return next(err);
-     
+      // modifico un poco el resultado antes de mandarlo
       notes = notes.map(note => ({
         title: note.title,
         text: note.text,
@@ -32,19 +32,20 @@ router.get('/notes', (req, res, next) => {
         }
       }));
       res.status(200).json({
-        count: notes.length,   
+        count: notes.length,   // la cantidad de elementos en notes
         notes: notes,
-        create: {              
+        create: {              // como crear una nota
           method: 'POST',
           url: `${req.protocol}://${req.hostname}:3000/api/notes`
         }
       });
     });
 });
+
 // GET /notes/id
 router.get('/notes/:id', (req, res, next) => {
   Note.findById(req.params.id)
-    .select('_id title text createdAt updatedAt') 
+    .select('_id title text createdAt updatedAt')  // todo menos __v
     .exec((err, note) => {
       if (err) return next(err);
       if (!note) return res.status(404).json({ msg: 'Not found' });
@@ -63,7 +64,7 @@ router.get('/notes/:id', (req, res, next) => {
       });
     });
 });
-
+// PUT /notes/id
 router.put('/notes/:id', (req, res, next) => {
   const note = {
     title: req.body.title,
@@ -80,6 +81,7 @@ router.put('/notes/:id', (req, res, next) => {
     res.status(200).json(note);
   });
 });
+
 // DELETE /notes/id
 router.delete('/notes/:id', (req, res, next) => {
   Note.findByIdAndRemove(req.params.id).exec((err, note) => {
